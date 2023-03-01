@@ -9,6 +9,7 @@ export function Login() {
 	const [email, setEmail] = useState('')
 	const [senha, setSenha] = useState('')
 	const [lembrar, setLembrar] = useState(false)
+	const [showSnackbarError, setShowSnackbarError] = useState(false)
 
 	const navigate = useNavigate()
 
@@ -27,21 +28,18 @@ export function Login() {
 		})
 		const data = await response.json()
 
-		if(response.status === 200){
+		if (response.status === 200) {
+			Cookies.set('token', data.token, {
+				expires: lembrar ? 30 : null
+			})
 
-		Cookies.set('token', data.token, {
-			expires: lembrar ? 30 : null
-		})
+			navigate('/app')
+		}
 
-		navigate('/app')
+		if (response.status === 401) {
+			setShowSnackbarError(true)
+		}
 	}
-
-	if(response.status === 401){
-		
-
-	}
-
-}
 
 	return (
 		<div className={style.container}>
@@ -52,19 +50,26 @@ export function Login() {
 						Insira suas informações abaixo para acessar seu painel
 					</p>
 
-						<div className={`${style.snackbar} ${style.snackbarHidecl}`}>
-
-							<div className={style.snackbarContent}>
-								<img src={blockIcon} />
-								<p className='fs-paragraph-'>Usuário ou senha incorretos. Por favor, tente novamente.</p>
-
-							</div>
-							<div className={style.snackbarClose}>
-								<img src={closeIcon} />
-							</div>
-
+					<div
+						className={`${style.snackbar} ${
+							showSnackbarError ? '' : style.snackbarHide
+						}`}
+					>
+						<div className={style.snackbarContent}>
+							<img src={blockIcon} />
+							<p className="fs-paragraph-">
+								Usuário ou senha incorretos. Por favor, tente novamente.
+							</p>
 						</div>
-
+						<div
+							className={style.snackbarClose}
+							onClick={() => {
+								setShowSnackbarError(false)
+							}}
+						>
+							<img src={closeIcon} />
+						</div>
+					</div>
 
 					<form onSubmit={authenticate}>
 						<div className={style.inputGroup}>
